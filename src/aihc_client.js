@@ -43,13 +43,14 @@ util.inherits(AihcClient, BceBaseClient);
 // --- BEGIN ---
 
 AihcClient.prototype.listInstances = function (opt_options) {
+    console.debug('listInstances')
     var options = opt_options || {};
     var params = u.extend(
         {maxKeys: 1000},
         u.pick(options, 'maxKeys', 'marker')
     );
 
-    return this.sendRequest('GET', '/v1/instance', {
+    return this.sendRequest('GET', '/api/v1/resourcepools', {
         params: params,
         config: options.config
     });
