@@ -10,7 +10,8 @@ Baidu Cloud Engine JavaScript SDK
 
 ## 通过NPM安装
 ```shell
-npm install @baiducloud/sdk
+npm i @atorber/baiducloud-sdk
+
 ```
 
 ## 通过CDN引用
