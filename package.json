@@ -53,6 +53,8 @@
     "urlencode": "^1.1.0"
   },
   "devDependencies": {
+    "@jest/types": "^29.6.3",
+    "jest-config": "^29.7.0",
     "@babel/core": "^7.24.0",
     "@babel/plugin-transform-async-to-generator": "^7.23.3",
     "@babel/preset-env": "^7.24.0",
