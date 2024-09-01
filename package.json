@@ -52,6 +52,11 @@
     "underscore": "^1.9.1",
     "urlencode": "^1.1.0"
   },
+
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "@jest/types": "^29.6.3",
     "jest-config": "^29.7.0",
