@@ -1,5 +1,5 @@
 {
-  "name": "@baiducloud/sdk",
+  "name": "@atorber/baiducloud-sdk",
   "version": "1.0.1",
   "description": "Baidu Cloud Engine JavaScript SDK",
   "main": "./index.js",
