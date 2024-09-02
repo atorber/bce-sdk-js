@@ -1,4 +1,4 @@
-Baidu Cloud Engine JavaScript SDK 第三方版
+# Baidu Cloud Engine JavaScript SDK 三方版
 
 [![Build Status](https://travis-ci.org/baidubce/bce-sdk-js.svg?branch=master)](https://travis-ci.org/baidubce/bce-sdk-js)
 [![NPM version](https://img.shields.io/npm/v/@baiducloud/sdk.svg?style=flat)](https://www.npmjs.com/package/@baiducloud/sdk)
