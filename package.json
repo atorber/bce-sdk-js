@@ -1,5 +1,5 @@
 {
-  "name": "@baiducloud/sdk",
+  "name": "@atorber/baiducloud-sdk",
   "version": "1.0.3-beta.7",
   "description": "Baidu Cloud Engine JavaScript SDK",
   "main": "./index.js",
@@ -43,6 +43,7 @@
     "async": "^3.2.5",
     "dayjs": "^1.11.10",
     "debug": "^3.1.0",
+    "dotenv": "^16.4.5",
     "filesize": "^10.1.0",
     "lodash": "^4.17.21",
     "process": "^0.11.10",
@@ -50,7 +51,14 @@
     "underscore": "^1.9.1",
     "urlencode": "^1.1.0"
   },
+
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
+    "@jest/types": "^29.6.3",
+    "jest-config": "^29.7.0",
     "@babel/core": "^7.24.0",
     "@babel/plugin-syntax-optional-chaining-assign": "^7.24.7",
     "@babel/plugin-transform-async-to-generator": "^7.23.3",

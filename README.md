@@ -1,4 +1,4 @@
-# Baidu Cloud Engine JavaScript SDK
+# Baidu Cloud Engine JavaScript SDK 三方版
 
 [![Build Status](https://travis-ci.org/baidubce/bce-sdk-js.svg?branch=master)](https://travis-ci.org/baidubce/bce-sdk-js)
 [![NPM version](https://img.shields.io/npm/v/@baiducloud/sdk.svg?style=flat)](https://www.npmjs.com/package/@baiducloud/sdk)
@@ -9,7 +9,7 @@
 ## 通过 NPM 安装
 
 ```shell
-npm install @baiducloud/sdk
+npm i @atorber/baiducloud-sdk
 ```
 
 ## 通过 CDN 引用
@@ -44,3 +44,9 @@ npm publish
 # 发布到CDN
 npm run publish:bos
 ```
+
+## 更新日志
+
+### 2024-8-31
+
+- 支持AIHC相关API
