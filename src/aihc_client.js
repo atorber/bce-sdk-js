@@ -204,14 +204,110 @@ AihcClient.prototype.getAIJob = function (resourcePoolId, jobId, opt_options) {
     });
   };
 
-// 删除训练任务
-// 更新训练任务
-// 查询训练任务事件
-// 查询训练任务日志
-// 查询训练任务Pod事件
-// 停止训练任务
-// 查询训练任务监控
-// 查询训练任务所在节点列表
+// DELETE 删除训练任务
+AihcClient.prototype.deleteAIJob = function (resourcePoolId, jobId, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId: resourcePoolId
+    };
+    return this.sendRequest('DELETE', `/api/v1/aijobs/${jobId}`, {
+        params,
+        config: options.config
+    });
+};
+
+// PUT 更新训练任务
+AihcClient.prototype.updateAIJob = function (resourcePoolId, jobId, body, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId: resourcePoolId
+    };
+    return this.sendRequest('PUT', `/api/v1/aijobs/${jobId}`, {
+        params,
+        config: options.config,
+        body: JSON.stringify(body)
+    });
+};
+
+// GET 查询训练任务事件
+AihcClient.prototype.getAIJobEvents = function (resourcePoolId, jobId, jobFramework, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId,
+        jobFramework,
+        ...u.pick(options, 'startTime', 'endTime')
+    };
+    return this.sendRequest('GET', `/api/v1/aijobs/${jobId}/events`, {
+        params,
+        config: options.config
+    });
+};
+
+// GET 查询训练任务日志
+AihcClient.prototype.getAIJobLogs = function (resourcePoolId, jobId, podName, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId,
+        ...u.pick(options, 'startTime', 'maxLines', 'chunk')
+    };
+    return this.sendRequest('GET', `/api/v1/aijobs/${jobId}/pods/${podName}/logs`, {
+        params,
+        config: options.config
+    });
+};
+
+// GET 查询训练任务Pod事件
+AihcClient.prototype.getAIJobPodEvents = function (resourcePoolId, jobId, podName, jobFramework, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId,
+        jobFramework,
+        ...u.pick(options, 'startTime', 'endTime')
+    };
+    return this.sendRequest('GET', `/api/v1/aijobs/${jobId}/pods/${podName}/events`, {
+        params,
+        config: options.config
+    });
+};
+
+// POST 停止训练任务
+AihcClient.prototype.stopAIJob = function (resourcePoolId, jobId, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId
+    };
+    return this.sendRequest('POST', `/api/v1/aijobs/${jobId}/stop`, {
+        params,
+        config: options.config
+    });
+};
+
+// GET 查询训练任务监控
+AihcClient.prototype.getAIJobMetrics = function (resourcePoolId, jobId, metricType, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId,
+        metricType,
+        ...u.pick(options, 'startTime', 'endTime', 'timeStep')
+    };
+    return this.sendRequest('GET', `/api/v1/aijobs/${jobId}/metrics`, {
+        params,
+        config: options.config
+    });
+};
+
+// GET 查询训练任务所在节点列表
+AihcClient.prototype.getAIJobNodes = function (resourcePoolId, jobId, opt_options) {
+    var options = opt_options || {};
+    var params = {
+        resourcePoolId
+    };
+    return this.sendRequest('GET', `/api/v1/aijobs/${jobId}/nodes`, {
+        params,
+        config: options.config
+    });
+};
+
 // GET 获取训练任务WebTerminal地址
 AihcClient.prototype.getAIJobWebterminal = function (resourcePoolId, jobId, podName, opt_options) {
   var options = opt_options || {};
