@@ -1,6 +1,6 @@
 {
   "name": "@atorber/baiducloud-sdk",
-  "version": "1.0.1",
+  "version": "1.0.3-beta.7",
   "description": "Baidu Cloud Engine JavaScript SDK",
   "main": "./index.js",
   "browser": {
@@ -20,7 +20,6 @@
     "test": "__tests__"
   },
   "scripts": {
-    "version": "node scripts/version.js",
     "build": "node scripts/build.js",
     "pack": "rm -rf dist/ && mkdir dist && browserify index.js -s baidubce.sdk -o dist/baidubce-sdk.bundle.js && uglifyjs dist/baidubce-sdk.bundle.js --compress --mangle -o dist/baidubce-sdk.bundle.min.js",
     "docs": "cd example && npm run start",
@@ -61,7 +60,9 @@
     "@jest/types": "^29.6.3",
     "jest-config": "^29.7.0",
     "@babel/core": "^7.24.0",
+    "@babel/plugin-syntax-optional-chaining-assign": "^7.24.7",
     "@babel/plugin-transform-async-to-generator": "^7.23.3",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.24.7",
     "@babel/preset-env": "^7.24.0",
     "@types/async": "^3.2.24",
     "@types/jest": "^29.5.12",

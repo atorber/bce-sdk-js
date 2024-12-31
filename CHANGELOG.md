@@ -1,5 +1,70 @@
 # CHANGELOG
 
+## 1.0.3-beta.7
+
+_published on 2024-12-25_
+
+- chore: Adjust the priority of the `removeVersionPrefix` parameter;
+- chore: update mimeType to support `mjs` files;
+
+## 1.0.3-beta.5
+
+_published on 2024-12-02_
+
+- Chore: BosClient support `'x-bce-tagging'` header;
+
+## 1.0.3-beta.4
+
+_published on 2024-10-30_
+
+### BosClient
+
+- Feat: initBucketObjectLock support headers
+
+## 1.0.3-beta.3
+
+_published on 2024-10-24_
+
+### BosClient
+
+- Fix: Allow passing headers in the ObjectLock related APIs
+
+## 1.0.3-beta.2
+
+_published on 2024-10-23_
+
+### BosClient
+
+- Fix endpoint is mistakenly set by virtual host config
+
+## 1.0.3-beta.1
+
+_published on 2024-10-22_
+
+### BosClient
+
+- Add compliance retention related APIs
+
+## 1.0.2
+
+_published on 2024-09-24_
+
+- support global config `customGenerateUrl` to set custom endpoint.
+- support `x-bce-source` header
+- fix optional-chaining-assign syntax not transformed issue.
+
+## 1.0.2-beta.2
+
+_published on 2024-09-23_
+
+### BosClient
+
+- support global config `customGenerateUrl` to set custom endpoint.
+
+## 1.0.2-beta.0 & ## 1.0.2-beta.1
+
+_published on 2024-09-03_
+
 ## 1.0.1
 
 _published on 2024-07-16_

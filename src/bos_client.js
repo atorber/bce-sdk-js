@@ -101,7 +101,7 @@ util.inherits(BosClient, BceBaseClient);
 /**
  * generate an authorization url with expire time and optional arguments
  * @param {string} bucketName the target bucket name
- * @param {string} key the target object name 
+ * @param {string} key the target object name
  * @param {*} timestamp a number representing timestamp in seconds
  * @param {*} expirationInSeconds expire time in seconds
  * @param {*} headers optional http request headers, default is empty
@@ -128,10 +128,11 @@ BosClient.prototype.generatePresignedUrl = function (
   // the endpoint provided in config, don't need to generate it by region
   endpoint = domainUtils.handleEndpoint({
     bucketName,
-    endpoint, 
+    endpoint,
     protocol: config.protocol,
     cname_enabled: config.cname_enabled,
-    pathStyleEnable: config.pathStyleEnable
+    pathStyleEnable: config.pathStyleEnable,
+    customGenerateUrl: config.customGenerateUrl
   });
 
   params = params || {};
@@ -1720,32 +1721,45 @@ BosClient.prototype.sendRequest = function (httpMethod, varArgs, requestUrl) {
   };
 
   var endpoint = this.config.endpoint;
+
   const bucketName = varArgs.bucketName;
-  const region = varArgs.config?.region;
+  const region = varArgs.config ? varArgs.config.region : this.config.region;
+  const localRemoveVersionPrefix = varArgs.config ? varArgs.config.removeVersionPrefix : false;
+  const versionPrefix = (localRemoveVersionPrefix || this.config.removeVersionPrefix) ? '/' : '/v1';
 
   varArgs.bucketName = this.config.cname_enabled ? '' : bucketName;
 
+  const customGenerateUrl =
+    varArgs.config && varArgs.config.customGenerateUrl
+      ? varArgs.config.customGenerateUrl
+      : this.config.customGenerateUrl
+      ? this.config.customGenerateUrl
+      : undefined;
+
   // provide the method for generating url
-  if (varArgs.config && varArgs.config.customGenerateUrl && typeof varArgs.config.customGenerateUrl === 'function') {
-    endpoint = varArgs.config.customGenerateUrl(bucketName, region)
-    resource =  requestUrl || path.normalize(strings.normalize(varArgs.key || '', false)).replace(/\\/g, '/');
-  }
-  else {
+  if (typeof customGenerateUrl === 'function') {
+    endpoint = customGenerateUrl(bucketName, region);
+    var resource =
+      requestUrl ||
+      path
+        .normalize(path.join(versionPrefix, strings.normalize(varArgs.key || '', false)))
+        .replace(/\\/g, '/');
+  } else {
     endpoint = domainUtils.handleEndpoint({
       bucketName,
-      endpoint, 
+      endpoint,
       region,
       protocol: this.config.protocol,
       cname_enabled: this.config.cname_enabled,
       pathStyleEnable: this.config.pathStyleEnable
-    })
+    });
 
     var resource =
       requestUrl ||
       path
         .normalize(
           path.join(
-            varArgs.removeVersionPrefix ? '/' : '/v1',
+            versionPrefix ? '/' : '/v1',
             // if pathStyleEnable is true
             !this.config.pathStyleEnable ? '' : strings.normalize(varArgs.bucketName || ''),
             strings.normalize(varArgs.key || '', false)
@@ -1773,7 +1787,7 @@ BosClient.prototype.sendRequest = function (httpMethod, varArgs, requestUrl) {
 // };
 
 /**
- *  
+ *
  * @param {string} httpMethod GET,POST,PUT,DELETE,HEAD
  * @param {string} resource The http request path.
  * @param {Object} args The request info.
@@ -1809,13 +1823,14 @@ BosClient.prototype.sendHTTPRequest = function (httpMethod, resource, args, conf
 
     promise.abort = function () {
       if (agent._req) {
-        // node环境下可能拿不到xhr实例，直接调用_req的abort方法
-        if (config.requestInstance) {
-          agent._req.abort();
-        }
+        // 浏览器请求
         if (agent._req.xhr) {
           var xhr = agent._req.xhr;
           xhr.abort();
+        }
+        // node环境下可能拿不到xhr实例，直接调用_req的abort方法
+        else if (config.requestInstance) {
+          agent._req.abort();
         }
       }
     };
@@ -1911,7 +1926,9 @@ BosClient.prototype._prepareObjectHeaders = function (options) {
     H.X_BCE_CALLBACK_ADDRESS,
     H.X_BCE_FETCH_REFERER,
     H.X_BCE_FETCH_USER_AGENT,
-    H.X_BCE_PROCESS
+    H.X_BCE_PROCESS,
+    H.X_BCE_SOURCE,
+    H.X_BCE_TAGGING
   ];
   var metaSize = 0;
   var headers = u.pick(options, function (value, key) {
@@ -2072,6 +2089,113 @@ BosClient.prototype.putSuperObject = function (params) {
   const instance = new SuperUpload(self, u.extend(params, {ContentLength, ContentType, dataType}));
 
   return instance;
+};
+
+/**
+ * 创建bucket的合规保留策略，此时策略状态变成IN_PROGRESS状态
+ * @doc https://cloud.baidu.com/doc/BOS/s/Xkc4jkho7
+ */
+BosClient.prototype.initBucketObjectLock = function (bucketName, body, options) {
+  options = options || {};
+  body = u.pick(body || {}, ['retentionDays']);
+
+  if (!bucketName) {
+    throw new TypeError('bucketName should not be empty.');
+  }
+
+  if (!body.retentionDays) {
+    throw new TypeError('retentionDays should not be empty.');
+  }
+
+  return this.sendRequest('POST', {
+    bucketName: bucketName,
+    params: {objectlock: ''},
+    body: JSON.stringify(body),
+    config: options.config,
+    headers: options.headers
+  });
+};
+
+/**
+ * 获取bucket的合规保留策略配置信息
+ * @doc https://cloud.baidu.com/doc/BOS/s/bkc4lq5mq
+ */
+BosClient.prototype.getBucketObjectLock = function (bucketName, options) {
+  options = options || {};
+
+  if (!bucketName) {
+    throw new TypeError('bucketName should not be empty.');
+  }
+
+  return this.sendRequest('GET', {
+    bucketName: bucketName,
+    params: {objectlock: ''},
+    config: options.config,
+    headers: options.headers
+  });
+};
+
+/**
+ * 删除bucket设置的合规保留策略
+ * @doc https://cloud.baidu.com/doc/BOS/s/rkc4lrfw8
+ */
+BosClient.prototype.deleteBucketObjectLock = function (bucketName, options) {
+  options = options || {};
+
+  if (!bucketName) {
+    throw new TypeError('bucketName should not be empty.');
+  }
+
+  return this.sendRequest('DELETE', {
+    bucketName: bucketName,
+    params: {objectlock: ''},
+    config: options.config,
+    headers: options.headers
+  });
+};
+
+/**
+ * 延长bucket的合规保留策略保护周期
+ * @doc https://cloud.baidu.com/doc/BOS/s/okc4ltaed
+ */
+BosClient.prototype.extendBucketObjectLock = function (bucketName, body, options) {
+  options = options || {};
+  body = u.pick(body || {}, ['extendRetentionDays']);
+
+  if (!bucketName) {
+    throw new TypeError('bucketName should not be empty.');
+  }
+
+  if (!body.extendRetentionDays) {
+    throw new TypeError('extendRetentionDays should not be empty.');
+  }
+
+  return this.sendRequest('POST', {
+    bucketName: bucketName,
+    params: {extendobjectlock: ''},
+    body: JSON.stringify(body),
+    config: options.config,
+    headers: options.headers
+  });
+};
+
+/**
+ * 立即锁定bucket合规保留策略，变成LOCKED锁定状态，当合规保留策略处于LOCKED锁定时，任何人不可删除该策略，除非删除该Bucket。
+ * @doc https://cloud.baidu.com/doc/BOS/s/xkc4lsd70
+ */
+BosClient.prototype.completeBucketObjectLock = function (bucketName, options) {
+  options = options || {};
+
+  if (!bucketName) {
+    throw new TypeError('bucketName should not be empty.');
+  }
+
+  return this.sendRequest('POST', {
+    bucketName: bucketName,
+    params: {completeobjectlock: ''},
+    config: options.config,
+    headers: options.headers
+  });
 };
 
 module.exports = BosClient;

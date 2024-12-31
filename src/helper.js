@@ -280,6 +280,9 @@ const isIpHost = function (host) {
 const isBosHost = function (host) {
   const domain = _getHostname(host);
   const arr = domain.split('.');
+  if (domain === 'bj-bos-sandbox.baidu-int.com') {
+    return true;
+  }
   if (arr.length !== 3) {
     return false;
   }
@@ -351,10 +354,17 @@ const handleEndpoint = function ({
   endpoint, 
   protocol,
   region,
+  customGenerateUrl,
   cname_enabled=false,
-  pathStyleEnable=false
+  pathStyleEnable=false,
 }) {
   var resolvedEndpoint = endpoint;
+  // 有自定义域名函数
+  if (customGenerateUrl) {
+    return customGenerateUrl(bucketName, region);
+  }
+
+  
   // 使用的是自定义域名 / virtual-host
   if (isCnameLikeHost(resolvedEndpoint) || cname_enabled) {
     // if virtual host endpoint and bucket is not empty, compatible bucket and endpoint
@@ -364,13 +374,13 @@ const handleEndpoint = function ({
     }
   }
   else {
-    // if this region is provided, generate base endpoint
-    if (region) {
-      resolvedEndpoint = generateBaseEndpoint(protocol, region);
-    }
     // 非ip/bns，pathStyleEnable不为true，强制转为pathStyle
     // 否则保持原状
     if (!pathStyleEnable && !isIpHost(resolvedEndpoint)) {
+        // if this region is provided, generate base endpoint
+        if (region) {
+          resolvedEndpoint = generateBaseEndpoint(protocol, region);
+        }
         // service级别的接口不需要转换
         if (bucketName && isBosHost(resolvedEndpoint)) {
           const {protocol, host} = getDomainWithoutProtocal(resolvedEndpoint);
@@ -378,7 +388,7 @@ const handleEndpoint = function ({
         }
     }
   }
-  return resolvedEndpoint
+  return resolvedEndpoint;
 }
 
 exports.domainUtils = {
