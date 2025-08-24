@@ -1,13 +1,15 @@
+// 注意：使用模拟端点避免在测试中进行实际网络调用
+// 实际的网络测试应该在集成测试环境中进行
 global.__config__ = {
   bos: {
-    endpoint: 'https://bj.bcebos.com',
-    bucket: process.env.BOS_TEST_BUCKET,
-    ak: process.env.BOS_QA_AK,
-    sk: process.env.BOS_QA_SK
+    endpoint: 'https://mock.example.com', // 使用模拟端点
+    bucket: 'mock-test-bucket',
+    ak: 'mock-access-key',
+    sk: 'mock-secret-key'
   },
   sts: {
-    endpoint: 'https://sts.bj.baidubce.com',
-    ak: process.env.BOS_QA_AK,
-    sk: process.env.BOS_QA_SK
+    endpoint: 'https://mock-sts.example.com', // 使用模拟端点
+    ak: 'mock-access-key',
+    sk: 'mock-secret-key'
   }
 };
