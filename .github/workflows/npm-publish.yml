@@ -7,7 +7,7 @@ on:
   release:
     types: [published]
   push:
-    branches: [ main, master ]
+    branches: [ main, master, bce-sdk-node-next ]
 
 jobs:
   build:
@@ -17,16 +17,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Type check
+        run: npm run type-check
+      - name: Build TypeScript
+        run: npm run build
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
 
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
-      - run: npm publish
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build for production
+        run: npm run build
+      - name: Publish to NPM
+        run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
