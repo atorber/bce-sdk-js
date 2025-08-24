@@ -13,8 +13,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./types", "./__tests__/types"],
-    "types": ["jest", "node"],
+    "typeRoots": ["./node_modules/@types", "./types"],
     
     /* JavaScript Support */
     "allowJs": true,
