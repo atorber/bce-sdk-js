@@ -17,22 +17,25 @@ import type {
   BceResponse 
 } from '../src/types/common';
 
-import type {
+import {
   StorageClass,
+  ObjectAcl
+} from '../src/bos/types';
+
+import type {
   BucketAcl,
-  ObjectAcl,
   ListObjectsResponse,
   PutObjectOptions,
   BosObject
 } from '../src/bos/types';
 
-import type {
+import {
   InstanceType,
   CreateInstanceOptions,
   ListInstancesResponse
 } from '../src/bcc_client';
 
-import type {
+import {
   Runtime,
   CreateFunctionOptions,
   InvocationResult
@@ -42,7 +45,7 @@ import type {
   SendMailOptions
 } from '../src/ses_client';
 
-import type {
+import {
   OcrLanguage
 } from '../src/ocr_client';
 
@@ -324,7 +327,7 @@ class ComprehensiveExample {
       // 1. 从 BOS 下载图片
       console.log('正在下载图片...');
       const imageResponse = await this.bosClient.getObject(bucketName, imageKey);
-      const imageData = imageResponse.body as Buffer;
+      const imageData = imageResponse.body as unknown as Buffer;
 
       // 2. OCR 文字识别
       console.log('正在进行 OCR 识别...');
@@ -366,6 +369,18 @@ class ComprehensiveExample {
 // ==================== 高级类型使用示例 ====================
 
 /**
+ * 接口扩展示例
+ */
+interface CustomBosOptions {
+  /** 自定义元数据 */
+  customMetadata?: Record<string, string>;
+  /** 重试次数 */
+  retryCount?: number;
+  /** 基础 BOS 选项 */
+  bosOptions?: PutObjectOptions;
+}
+
+/**
  * 高级 TypeScript 特性使用示例
  */
 class AdvancedTypeExample {
@@ -398,29 +413,26 @@ class AdvancedTypeExample {
     data: string | Buffer | Blob // 联合类型
   ): Promise<void> {
     let contentType: string;
+    let uploadData: string | Buffer;
     
     // TypeScript 类型守卫
     if (typeof data === 'string') {
       contentType = 'text/plain';
+      uploadData = data;
     } else if (Buffer.isBuffer(data)) {
       contentType = 'application/octet-stream';
+      uploadData = data;
     } else if (data instanceof Blob) {
       contentType = data.type || 'application/octet-stream';
+      // 将 Blob 转换为 Buffer
+      uploadData = Buffer.from(await data.arrayBuffer());
     } else {
       throw new Error('不支持的数据类型');
     }
 
-    await client.putObject(bucketName, key, data, {
+    await client.putObject(bucketName, key, uploadData, {
       'Content-Type': contentType
     });
-  }
-
-  /**
-   * 接口扩展示例
-   */
-  interface CustomBosOptions extends PutObjectOptions {
-    customMetadata?: Record<string, string>;
-    retryCount?: number;
   }
 
   async uploadWithCustomOptions(
@@ -431,7 +443,7 @@ class AdvancedTypeExample {
     options: CustomBosOptions
   ): Promise<BceResponse<any>> {
     // 将自定义元数据转换为 BOS 元数据格式
-    const bosOptions: PutObjectOptions = { ...options };
+    const bosOptions: PutObjectOptions = { ...options.bosOptions };
     
     if (options.customMetadata) {
       Object.entries(options.customMetadata).forEach(([key, value]) => {
