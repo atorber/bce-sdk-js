@@ -44,8 +44,9 @@ exports.TsdbAdminClient = require('./src/tsdb_admin_client');
 exports.CfcClient = require('./src/cfc_client');
 exports.BtsClient = require('./src/bts_client');
 exports.IoTClient = require('./src/iot_client');
+exports.AihcClient = require('./src/aihc_client');
 
-},{"./package.json":411,"./src/auth":412,"./src/base64":413,"./src/bcc_client":414,"./src/bce_base_client":415,"./src/bcs_client":416,"./src/bos_client":419,"./src/bts_client":421,"./src/cfc_client":422,"./src/crypto":424,"./src/doc_client":425,"./src/face_client":426,"./src/http_client":429,"./src/iot_client":430,"./src/lss_client":431,"./src/mct_client":432,"./src/media_client":433,"./src/mime.types":434,"./src/ocr_client":436,"./src/qns_client":437,"./src/ses_client":438,"./src/strings":439,"./src/sts":440,"./src/tsdb_admin_client":441,"./src/tsdb_data_client":442,"./src/vod_client":449,"q":374}],2:[function(require,module,exports){
+},{"./package.json":411,"./src/aihc_client":412,"./src/auth":413,"./src/base64":414,"./src/bcc_client":415,"./src/bce_base_client":416,"./src/bcs_client":417,"./src/bos_client":420,"./src/bts_client":422,"./src/cfc_client":423,"./src/crypto":425,"./src/doc_client":426,"./src/face_client":427,"./src/http_client":430,"./src/iot_client":431,"./src/lss_client":432,"./src/mct_client":433,"./src/media_client":434,"./src/mime.types":435,"./src/ocr_client":437,"./src/qns_client":438,"./src/ses_client":439,"./src/strings":440,"./src/sts":441,"./src/tsdb_admin_client":442,"./src/tsdb_data_client":443,"./src/vod_client":450,"q":374}],2:[function(require,module,exports){
 ;(function () {
 
   var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
@@ -57353,10 +57354,20 @@ exports.createContext = Script.createContext = function (context) {
 
 },{"indexof":153}],411:[function(require,module,exports){
 module.exports={
-  "name": "@baiducloud/sdk",
+  "name": "@atorber/baiducloud-sdk",
   "version": "1.0.3-beta.7",
   "description": "Baidu Cloud Engine JavaScript SDK",
   "main": "./index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
   "browser": {
     "fs": false,
     "index.js": "./dist/baidubce-sdk.bundle.js"
@@ -57364,8 +57375,8 @@ module.exports={
   "files": [
     "dist/",
     "src/",
-    "types/",
     "index.js",
+    "index.d.ts",
     "package.json",
     "CHANGELOG.md",
     "README.md"
@@ -57374,12 +57385,22 @@ module.exports={
     "test": "__tests__"
   },
   "scripts": {
-    "build": "node scripts/build.js",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:bundle",
+    "build:cjs": "tsc",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:ts": "npm run build:cjs",
+    "build:bundle": "node scripts/build.js",
+    "build:types": "tsc --declaration --emitDeclarationOnly",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf dist/",
     "pack": "rm -rf dist/ && mkdir dist && browserify index.js -s baidubce.sdk -o dist/baidubce-sdk.bundle.js && uglifyjs dist/baidubce-sdk.bundle.js --compress --mangle -o dist/baidubce-sdk.bundle.min.js",
     "docs": "cd example && npm run start",
     "publish:bos": "node scripts/publish_to_bos.js",
     "test": "jest",
-    "test:legacy": "./test/run-all.sh"
+    "test:legacy": "./test/run-all.sh",
+    "lint": "eslint src/**/*.ts --fix",
+    "format": "prettier --write src/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -57397,12 +57418,30 @@ module.exports={
     "async": "^3.2.5",
     "dayjs": "^1.11.10",
     "debug": "^3.1.0",
+    "dotenv": "^16.4.5",
     "filesize": "^10.1.0",
     "lodash": "^4.17.21",
     "process": "^0.11.10",
     "q": "^1.5.1",
+    "tslib": "^2.8.1",
     "underscore": "^1.9.1",
     "urlencode": "^1.1.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run type-check && npm test"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
@@ -57410,17 +57449,30 @@ module.exports={
     "@babel/plugin-transform-async-to-generator": "^7.23.3",
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.24.7",
     "@babel/preset-env": "^7.24.0",
+    "@jest/types": "^29.6.3",
     "@types/async": "^3.2.24",
+    "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.202",
+    "@types/q": "^1.5.8",
+    "@types/underscore": "^1.11.15",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "babelify": "^10.0.0",
     "browserify": "10.2.6",
     "chalk": "^4.1.2",
     "coveralls": "^3.0.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
     "expect.js": "^0.3.1",
+    "husky": "^9.0.11",
     "istanbul": "^0.4.5",
     "jest": "^29.7.0",
+    "jest-config": "^29.7.0",
+    "lint-staged": "^15.2.2",
     "mocha": "^5.2.0",
+    "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
@@ -57430,6 +57482,454 @@ module.exports={
 }
 
 },{}],412:[function(require,module,exports){
+"use strict";
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+/**
+ * Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * @file src/aihc_client.js
+ * @author atorber
+ */
+
+/* eslint-env node */
+/* eslint max-params:[0,10] */
+/* eslint fecs-camelcase:[2,{"ignore":["/opt_/"]}] */
+
+var util = require('util');
+var u = require('underscore');
+var debug = require('debug')('bce-sdk:AihcClient');
+var BceBaseClient = require('./bce_base_client');
+
+/**
+ * AIHC service api
+ *
+ * @see https://cloud.baidu.com/doc/AIHC/s/dly5i8vfs
+ *
+ * @constructor
+ * @param {Object} config The aihc client configuration.
+ * @extends {BceBaseClient}
+ */
+function AihcClient(config) {
+  BceBaseClient.call(this, config, 'aihc', true);
+}
+util.inherits(AihcClient, BceBaseClient);
+
+// --- BEGIN ---
+
+function abstractMethod() {
+  throw new Error('unimplemented method');
+}
+
+// GET 资源池列表
+AihcClient.prototype.listResourcepools = function (opt_options) {
+  var options = opt_options || {};
+  var params = u.extend({
+    maxKeys: 1000
+  }, u.pick(options, 'maxKeys', 'marker'));
+  return this.sendRequest('GET', '/api/v1/resourcepools', {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 资源池详情
+AihcClient.prototype.getResourcepool = function (resourcePoolId, opt_options) {
+  var options = opt_options || {};
+  return this.sendRequest('GET', "/api/v1/resourcepools/".concat(resourcePoolId), {
+    config: options.config
+  });
+};
+
+// GET 资源池节点列表
+AihcClient.prototype.listResourcepoolNodes = function (resourcePoolId, opt_options) {
+  var options = opt_options || {};
+  var params = u.extend({
+    maxKeys: 1000
+  }, u.pick(options, 'maxKeys', 'marker'));
+  return this.sendRequest('GET', "/api/v1/resourcepools/".concat(resourcePoolId, "/nodes"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 队列列表
+AihcClient.prototype.listResourcepoolQueues = function (resourcePoolId, opt_options) {
+  var options = opt_options || {};
+  var params = u.extend({
+    maxKeys: 1000
+  }, u.pick(options, 'maxKeys', 'marker'));
+  return this.sendRequest('GET', "/api/v1/resourcepools/".concat(resourcePoolId, "/queue"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 队列详情
+AihcClient.prototype.getResourcepoolQueue = function (resourcePoolId, queueName, opt_options) {
+  var options = opt_options || {};
+  return this.sendRequest('GET', "/api/v1/resourcepools/".concat(resourcePoolId, "/queue/").concat(queueName), {
+    config: options.config
+  });
+};
+
+// DELETE 队列删除
+AihcClient.prototype.deleteResourcepoolQueue = function (resourcePoolId, queueName, opt_options) {
+  var options = opt_options || {};
+  return this.sendRequest('DELETE', "/api/v1/resourcepools/".concat(resourcePoolId, "/queue/").concat(queueName), {
+    config: options.config
+  });
+};
+
+// POST 队列创建
+AihcClient.prototype.createResourcepoolQueue = function (resourcePoolId, body, opt_options) {
+  var me = this;
+  return this.getClientToken().then(function (response) {
+    var options = opt_options || {};
+    var params = {};
+
+    //   var body = {
+    //     "description": "This is a test queue",
+    //     "deserved": {
+    //       "cpu": 10,
+    //       "memory": 20
+    //     },
+    //     "name": "demo",
+    //     "parentQueue": "root",
+    //     "queueType": "Regular",
+    //     "disableOversell": false
+    //   };
+
+    debug('createInstance, params = %j, body = %j', params, body);
+    return me.sendRequest('POST', "/api/v1/resourcepools/".concat(resourcePoolId, "/queue"), {
+      config: options.config,
+      params: params,
+      body: JSON.stringify(body)
+    });
+  });
+};
+
+// PUT 队列更新
+AihcClient.prototype.updateResourcepoolQueue = function (resourcePoolId, queueName, body, opt_options) {
+  var options = opt_options || {};
+  var params = {};
+
+  // body = {
+  //     "description": "This is a test",
+  //     "disableOversell": true,
+  //     "deserved": {
+  //       "cpu": 5,
+  //       "memory": 10
+  //     }
+  //   }
+
+  return this.sendRequest('PUT', "/api/v1/resourcepools/".concat(resourcePoolId, "/queue/").concat(queueName), {
+    params: params,
+    config: options.config,
+    body: JSON.stringify(body)
+  });
+};
+
+// POST 创建训练任务
+AihcClient.prototype.createAIJob = function (resourcePoolId, body, opt_options) {
+  var me = this;
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  debug('createInstance, params = %j, body = %j', params, body);
+  return me.sendRequest('POST', '/api/v1/aijobs', {
+    config: options.config,
+    params: params,
+    body: JSON.stringify(body)
+  });
+};
+
+// GET 查询训练任务列表
+AihcClient.prototype.listAIJobs = function (resourcePoolId, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  var config = options.config;
+  console.log('listAIJobs, params = %j', params);
+  console.log('listAIJobs, config = %j', config);
+  return this.sendRequest('GET', '/api/v1/aijobs', {
+    params: params,
+    config: config
+  });
+};
+
+// GET 查询训练任务详情
+AihcClient.prototype.getAIJob = function (resourcePoolId, jobId, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  var config = options.config;
+  console.log('listAIJobs, params = %j', params);
+  console.log('listAIJobs, config = %j', config);
+  return this.sendRequest('GET', "/api/v1/aijobs/".concat(jobId), {
+    params: params,
+    config: config
+  });
+};
+
+// DELETE 删除训练任务
+AihcClient.prototype.deleteAIJob = function (resourcePoolId, jobId, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  return this.sendRequest('DELETE', "/api/v1/aijobs/".concat(jobId), {
+    params: params,
+    config: options.config
+  });
+};
+
+// PUT 更新训练任务
+AihcClient.prototype.updateAIJob = function (resourcePoolId, jobId, body, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  return this.sendRequest('PUT', "/api/v1/aijobs/".concat(jobId), {
+    params: params,
+    config: options.config,
+    body: JSON.stringify(body)
+  });
+};
+
+// GET 查询训练任务事件
+AihcClient.prototype.getAIJobEvents = function (resourcePoolId, jobId, jobFramework, opt_options) {
+  var options = opt_options || {};
+  var params = _objectSpread({
+    resourcePoolId: resourcePoolId,
+    jobFramework: jobFramework
+  }, u.pick(options, 'startTime', 'endTime'));
+  return this.sendRequest('GET', "/api/v1/aijobs/".concat(jobId, "/events"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 查询训练任务日志
+AihcClient.prototype.getAIJobLogs = function (resourcePoolId, jobId, podName, opt_options) {
+  var options = opt_options || {};
+  var params = _objectSpread({
+    resourcePoolId: resourcePoolId
+  }, u.pick(options, 'startTime', 'maxLines', 'chunk'));
+  return this.sendRequest('GET', "/api/v1/aijobs/".concat(jobId, "/pods/").concat(podName, "/logs"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 查询训练任务Pod事件
+AihcClient.prototype.getAIJobPodEvents = function (resourcePoolId, jobId, podName, jobFramework, opt_options) {
+  var options = opt_options || {};
+  var params = _objectSpread({
+    resourcePoolId: resourcePoolId,
+    jobFramework: jobFramework
+  }, u.pick(options, 'startTime', 'endTime'));
+  return this.sendRequest('GET', "/api/v1/aijobs/".concat(jobId, "/pods/").concat(podName, "/events"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// POST 停止训练任务
+AihcClient.prototype.stopAIJob = function (resourcePoolId, jobId, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  return this.sendRequest('POST', "/api/v1/aijobs/".concat(jobId, "/stop"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 查询训练任务监控
+AihcClient.prototype.getAIJobMetrics = function (resourcePoolId, jobId, metricType, opt_options) {
+  var options = opt_options || {};
+  var params = _objectSpread({
+    resourcePoolId: resourcePoolId,
+    metricType: metricType
+  }, u.pick(options, 'startTime', 'endTime', 'timeStep'));
+  return this.sendRequest('GET', "/api/v1/aijobs/".concat(jobId, "/metrics"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 查询训练任务所在节点列表
+AihcClient.prototype.getAIJobNodes = function (resourcePoolId, jobId, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  return this.sendRequest('GET', "/api/v1/aijobs/".concat(jobId, "/nodes"), {
+    params: params,
+    config: options.config
+  });
+};
+
+// GET 获取训练任务WebTerminal地址
+AihcClient.prototype.getAIJobWebterminal = function (resourcePoolId, jobId, podName, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    resourcePoolId: resourcePoolId
+  };
+  var config = options.config;
+  console.log('listAIJobs, params = %j', params);
+  console.log('listAIJobs, config = %j', config);
+  return this.sendRequest('GET', "/api/v1/aijobs/".concat(jobId, "/pods/").concat(podName, "/webterminal"), {
+    params: params,
+    config: config
+  });
+};
+
+// GET /instance/price
+AihcClient.prototype.getPackages = function (opt_options) {
+  var options = opt_options || {};
+  return this.sendRequest('GET', '/v1/instance/price', {
+    config: options.config
+  });
+};
+
+// GET /image?marker={marker}&maxKeys={maxKeys}&imageType={imageType}
+AihcClient.prototype.getImages = function (opt_options) {
+  var options = opt_options || {};
+
+  // imageType => All, System, Custom, Integration
+  var params = u.extend({
+    maxKeys: 1000,
+    imageType: 'All'
+  }, u.pick(options, 'maxKeys', 'marker', 'imageType'));
+  return this.sendRequest('GET', '/v1/image', {
+    config: options.config,
+    params: params
+  });
+};
+
+// POST /instance
+AihcClient.prototype.createInstance = function (body, opt_options) {
+  var me = this;
+  return this.getClientToken().then(function (response) {
+    var options = opt_options || {};
+    var clientToken = response.body.token;
+    var params = {
+      clientToken: clientToken
+    };
+
+    /**
+        var body = {
+            // MICRO,SMALL,MEDIUM,LARGE,XLARGE,XXLARGE
+            instanceType: string,
+            imageId: string,
+            ?localDiskSizeInGB: int,
+            ?createCdsList: List<CreateCdsModel>,
+            ?networkCapacityInMbps: int,
+            ?purchaseCount: int,
+            ?name: string,
+            ?adminPass: string,
+            ?networkType: string,
+            ?noahNode: string
+        };
+        */
+
+    debug('createInstance, params = %j, body = %j', params, body);
+    return me.sendRequest('POST', '/v1/instance', {
+      config: options.config,
+      params: params,
+      body: JSON.stringify(body)
+    });
+  });
+};
+
+// PUT /instance/{instanceId}?action=start
+AihcClient.prototype.startInstance = function (id, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    start: ''
+  };
+  return this.sendRequest('PUT', '/v1/instance/' + id, {
+    params: params,
+    config: options.config
+  });
+};
+
+// PUT /instance/{instanceId}?action=stop
+AihcClient.prototype.stopInstance = function (id, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    stop: ''
+  };
+  return this.sendRequest('PUT', '/v1/instance/' + id, {
+    params: params,
+    config: options.config
+  });
+};
+
+// PUT /instance/{instanceId}?action=reboot
+AihcClient.prototype.restartInstance = function (id, opt_options) {
+  var options = opt_options || {};
+  var params = {
+    reboot: ''
+  };
+  return this.sendRequest('PUT', '/v1/instance/' + id, {
+    params: params,
+    config: options.config
+  });
+};
+
+// PUT /instance/{instanceId}?action=changePass
+AihcClient.prototype.changeInstanceAdminPassword = abstractMethod;
+
+// PUT /instance/{instanceId}?action=rebuild
+AihcClient.prototype.rebuildInstance = abstractMethod;
+
+// PUT /instance/{instanceId}/securityGroup/{securityGroupId}?action=bind
+AihcClient.prototype.joinSecurityGroup = abstractMethod;
+
+// PUT /instance/{instanceId}/securityGroup/{securityGroupId}?action=unbind
+AihcClient.prototype.leaveSecurityGroup = abstractMethod;
+
+// GET /instance/{instanceId}/vnc
+AihcClient.prototype.getVNCUrl = function (id, opt_options) {
+  var options = opt_options || {};
+  return this.sendRequest('GET', '/v1/instance/' + id + '/vnc', {
+    config: options.config
+  });
+};
+AihcClient.prototype.getClientToken = function (opt_options) {
+  return this.sendRequest('POST', '/v1/token/create');
+};
+
+// --- E N D ---
+
+AihcClient.prototype._generateClientToken = function () {
+  var clientToken = Date.now().toString(16) + (Number.MAX_VALUE * Math.random()).toString(16).substr(0, 8);
+  return 'ClientToken:' + clientToken;
+};
+module.exports = AihcClient;
+
+},{"./bce_base_client":416,"debug":82,"underscore":403,"util":409}],413:[function(require,module,exports){
 "use strict";
 
 /**
@@ -57621,7 +58121,7 @@ Auth.prototype.generateCanonicalUri = function (url) {
 };
 module.exports = Auth;
 
-},{"./headers":427,"./strings":439,"crypto":80,"debug":82,"underscore":403,"url":404,"util":409}],413:[function(require,module,exports){
+},{"./headers":428,"./strings":440,"crypto":80,"debug":82,"underscore":403,"url":404,"util":409}],414:[function(require,module,exports){
 (function (global,Buffer){
 "use strict";
 
@@ -57673,7 +58173,7 @@ exports.urlDecode = function urlDecode(inputStr) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"buffer":70}],414:[function(require,module,exports){
+},{"buffer":70}],415:[function(require,module,exports){
 "use strict";
 
 /**
@@ -57875,7 +58375,7 @@ BccClient.prototype._generateClientToken = function () {
 };
 module.exports = BccClient;
 
-},{"./bce_base_client":415,"debug":82,"underscore":403,"util":409}],415:[function(require,module,exports){
+},{"./bce_base_client":416,"debug":82,"underscore":403,"util":409}],416:[function(require,module,exports){
 "use strict";
 
 /**
@@ -57984,7 +58484,7 @@ BceBaseClient.prototype.sendHTTPRequest = function (httpMethod, resource, args, 
 };
 module.exports = BceBaseClient;
 
-},{"./auth":412,"./config":423,"./headers":427,"./http_client":429,"events":112,"q":374,"underscore":403,"util":409}],416:[function(require,module,exports){
+},{"./auth":413,"./config":424,"./headers":428,"./http_client":430,"events":112,"q":374,"underscore":403,"util":409}],417:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -58276,7 +58776,7 @@ BcsClient.prototype._prepareObjectHeaders = function (options) {
 module.exports = BcsClient;
 
 }).call(this,require("buffer").Buffer)
-},{"./bce_base_client":415,"./crypto":424,"./headers":427,"./http_client":429,"./mime.types":434,"buffer":70,"crypto":80,"fs":26,"path":357,"querystring":377,"underscore":403,"util":409}],417:[function(require,module,exports){
+},{"./bce_base_client":416,"./crypto":425,"./headers":428,"./http_client":430,"./mime.types":435,"buffer":70,"crypto":80,"fs":26,"path":357,"querystring":377,"underscore":403,"util":409}],418:[function(require,module,exports){
 "use strict";
 
 /**
@@ -58318,7 +58818,7 @@ exports.STATE = {
   FAILED: 'failed'
 };
 
-},{}],418:[function(require,module,exports){
+},{}],419:[function(require,module,exports){
 "use strict";
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -59204,7 +59704,7 @@ var SuperUpload = /*#__PURE__*/function () {
 }();
 module.exports = SuperUpload;
 
-},{"../bos_client":419,"../headers":427,"./enums":417,"async":22,"dayjs":81,"debug":82,"filesize":114,"lodash/mean":327,"lodash/omit":329,"lodash/sortBy":331}],419:[function(require,module,exports){
+},{"../bos_client":420,"../headers":428,"./enums":418,"async":22,"dayjs":81,"debug":82,"filesize":114,"lodash/mean":327,"lodash/omit":329,"lodash/sortBy":331}],420:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -61128,7 +61628,7 @@ BosClient.prototype.completeBucketObjectLock = function (bucketName, options) {
 module.exports = BosClient;
 
 }).call(this,require("buffer").Buffer)
-},{"./auth":412,"./base64":413,"./bce_base_client":415,"./bos/super_upload":418,"./crypto":424,"./headers":427,"./helper":428,"./http_client":429,"./mime.types":434,"./multipart":435,"./strings":439,"./wm_stream":450,"buffer":70,"debug":82,"fs":26,"path":357,"q":374,"querystring":377,"stream":401,"underscore":403,"url":404,"util":409}],420:[function(require,module,exports){
+},{"./auth":413,"./base64":414,"./bce_base_client":416,"./bos/super_upload":419,"./crypto":425,"./headers":428,"./helper":429,"./http_client":430,"./mime.types":435,"./multipart":436,"./strings":440,"./wm_stream":451,"buffer":70,"debug":82,"fs":26,"path":357,"q":374,"querystring":377,"stream":401,"underscore":403,"url":404,"util":409}],421:[function(require,module,exports){
 "use strict";
 
 /*
@@ -61597,7 +62097,7 @@ module.exports = {
   ScanRequest: ScanRequest
 };
 
-},{"urlencode":405}],421:[function(require,module,exports){
+},{"urlencode":405}],422:[function(require,module,exports){
 "use strict";
 
 /*
@@ -61859,7 +62359,7 @@ module.exports = {
   ScanRequest: ScanRequest
 };
 
-},{"./bce_base_client":415,"./bts/models":420,"util":409}],422:[function(require,module,exports){
+},{"./bce_base_client":416,"./bts/models":421,"util":409}],423:[function(require,module,exports){
 "use strict";
 
 /**
@@ -62170,7 +62670,7 @@ CfcClient.prototype.sendRequest = function (httpMethod, resource, varArgs) {
 };
 module.exports = CfcClient;
 
-},{"./bce_base_client":415,"./strings":439,"debug":82,"underscore":403,"util":409}],423:[function(require,module,exports){
+},{"./bce_base_client":416,"./strings":440,"debug":82,"underscore":403,"util":409}],424:[function(require,module,exports){
 "use strict";
 
 /**
@@ -62200,7 +62700,7 @@ exports.DEFAULT_CONFIG = {
 };
 exports.DEFAULT_BOS_DOMAIN = 'bcebos.com';
 
-},{}],424:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -62268,7 +62768,7 @@ exports.md5blob = function (blob, digest) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":70,"crypto":80,"fs":26,"q":374}],425:[function(require,module,exports){
+},{"buffer":70,"crypto":80,"fs":26,"q":374}],426:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -62649,7 +63149,7 @@ exports.Document = Document;
 exports.Notification = Notification;
 
 }).call(this,{"isBuffer":require("../node_modules/is-buffer/index.js")})
-},{"../node_modules/is-buffer/index.js":155,"./bce_base_client":415,"./bos_client":419,"./crypto":424,"./helper":428,"debug":82,"fs":26,"path":357,"q":374,"underscore":403,"url":404,"util":409}],426:[function(require,module,exports){
+},{"../node_modules/is-buffer/index.js":155,"./bce_base_client":416,"./bos_client":420,"./crypto":425,"./helper":429,"debug":82,"fs":26,"path":357,"q":374,"underscore":403,"url":404,"util":409}],427:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -62841,7 +63341,7 @@ FaceClient.prototype.verify = function (appId, personName, data, options) {
 module.exports = FaceClient;
 
 }).call(this,{"isBuffer":require("../node_modules/is-buffer/index.js")})
-},{"../node_modules/is-buffer/index.js":155,"./bce_base_client":415,"debug":82,"underscore":403,"util":409}],427:[function(require,module,exports){
+},{"../node_modules/is-buffer/index.js":155,"./bce_base_client":416,"debug":82,"underscore":403,"util":409}],428:[function(require,module,exports){
 "use strict";
 
 /**
@@ -62914,7 +63414,7 @@ exports.X_VOD_MEDIA_DESCRIPTION = 'x-vod-media-description';
 exports.ACCEPT_ENCODING = 'accept-encoding';
 exports.ACCEPT = 'accept';
 
-},{}],428:[function(require,module,exports){
+},{}],429:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -63294,7 +63794,7 @@ exports.domainUtils = {
 };
 
 }).call(this,{"isBuffer":require("../node_modules/is-buffer/index.js")})
-},{"../node_modules/is-buffer/index.js":155,"./config":423,"./strings":439,"async":22,"debug":82,"fs":26,"q":374,"stream":401,"underscore":403,"url":404,"util":409}],429:[function(require,module,exports){
+},{"../node_modules/is-buffer/index.js":155,"./config":424,"./strings":440,"async":22,"debug":82,"fs":26,"q":374,"stream":401,"underscore":403,"url":404,"util":409}],430:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -63735,7 +64235,7 @@ function failure(statusCode, message, code, requestId, xBceDate) {
 module.exports = HttpClient;
 
 }).call(this,require("buffer").Buffer)
-},{"../package.json":411,"./auth":412,"./headers":427,"buffer":70,"debug":82,"events":112,"http":129,"https":132,"process/":365,"q":374,"querystring":377,"stream":401,"underscore":403,"url":404,"util":409}],430:[function(require,module,exports){
+},{"../package.json":411,"./auth":413,"./headers":428,"buffer":70,"debug":82,"events":112,"http":129,"https":132,"process/":365,"q":374,"querystring":377,"stream":401,"underscore":403,"url":404,"util":409}],431:[function(require,module,exports){
 "use strict";
 
 /**
@@ -63825,7 +64325,7 @@ IoTClient.prototype._buildUrl = function () {
 
 module.exports = IoTClient;
 
-},{"./bce_base_client":415,"./strings":439,"path":357,"underscore":403,"util":409}],431:[function(require,module,exports){
+},{"./bce_base_client":416,"./strings":440,"path":357,"underscore":403,"util":409}],432:[function(require,module,exports){
 "use strict";
 
 /**
@@ -64084,7 +64584,7 @@ exports.Preset = Preset;
 exports.Session = Session;
 exports.Notification = Notification;
 
-},{"./bce_base_client":415,"q":374,"util":409}],432:[function(require,module,exports){
+},{"./bce_base_client":416,"q":374,"util":409}],433:[function(require,module,exports){
 "use strict";
 
 /**
@@ -64498,7 +64998,7 @@ exports.Thumbnail = Thumbnail;
 exports.Pipeline = Pipeline;
 exports.Preset = Preset;
 
-},{"./bce_base_client":415,"q":374,"util":409}],433:[function(require,module,exports){
+},{"./bce_base_client":416,"q":374,"util":409}],434:[function(require,module,exports){
 "use strict";
 
 /**
@@ -64706,7 +65206,7 @@ MediaClient.prototype.sendRequest = function (httpMethod, resource, varArgs) {
 };
 module.exports = MediaClient;
 
-},{"./auth":412,"./bce_base_client":415,"./http_client":429,"underscore":403,"util":409}],434:[function(require,module,exports){
+},{"./auth":413,"./bce_base_client":416,"./http_client":430,"underscore":403,"util":409}],435:[function(require,module,exports){
 "use strict";
 
 /**
@@ -65722,7 +66222,7 @@ exports.guess = function (ext) {
   return mimeTypes[ext.toLowerCase()] || 'application/octet-stream';
 };
 
-},{}],435:[function(require,module,exports){
+},{}],436:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -65786,7 +66286,7 @@ Multipart.prototype.encode = function () {
 module.exports = Multipart;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":70,"underscore":403,"util":409}],436:[function(require,module,exports){
+},{"buffer":70,"underscore":403,"util":409}],437:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -65861,7 +66361,7 @@ OCRClient.prototype.singleCharacter = function (data, language, options) {
 module.exports = OCRClient;
 
 }).call(this,{"isBuffer":require("../node_modules/is-buffer/index.js")})
-},{"../node_modules/is-buffer/index.js":155,"./bce_base_client":415,"debug":82,"util":409}],437:[function(require,module,exports){
+},{"../node_modules/is-buffer/index.js":155,"./bce_base_client":416,"debug":82,"util":409}],438:[function(require,module,exports){
 "use strict";
 
 /**
@@ -66096,7 +66596,7 @@ Subscription.prototype.list = function (options) {
 exports.Topic = Topic;
 exports.Subscription = Subscription;
 
-},{"./bce_base_client":415,"underscore":403,"util":409}],438:[function(require,module,exports){
+},{"./bce_base_client":416,"underscore":403,"util":409}],439:[function(require,module,exports){
 "use strict";
 
 /**
@@ -66257,7 +66757,7 @@ SesClient.prototype.sendMail = function (mailOptions) {
 
 module.exports = SesClient;
 
-},{"./bce_base_client":415,"fs":26,"path":357,"util":409}],439:[function(require,module,exports){
+},{"./bce_base_client":416,"fs":26,"path":357,"util":409}],440:[function(require,module,exports){
 "use strict";
 
 /**
@@ -66311,7 +66811,7 @@ exports.hasSuffix = function (string, suffix) {
   return len > 0 && string.lastIndexOf(suffix) === string.length - len;
 };
 
-},{}],440:[function(require,module,exports){
+},{}],441:[function(require,module,exports){
 "use strict";
 
 /**
@@ -66378,7 +66878,7 @@ STS.prototype.getSessionToken = function (durationSeconds, params, options) {
 
 module.exports = STS;
 
-},{"./bce_base_client":415,"underscore":403,"util":409}],441:[function(require,module,exports){
+},{"./bce_base_client":416,"underscore":403,"util":409}],442:[function(require,module,exports){
 "use strict";
 
 /**
@@ -66515,7 +67015,7 @@ TsdbAdminClient.prototype.sendRequest = function (httpMethod, resource, varArgs)
 };
 module.exports = TsdbAdminClient;
 
-},{"./bce_base_client":415,"./http_client":429,"underscore":403,"util":409}],442:[function(require,module,exports){
+},{"./bce_base_client":416,"./http_client":430,"underscore":403,"util":409}],443:[function(require,module,exports){
 "use strict";
 
 /**
@@ -66728,7 +67228,7 @@ TsdbDataClient.prototype.sendRequest = function (httpMethod, resource, varArgs) 
 };
 module.exports = TsdbDataClient;
 
-},{"./auth.js":412,"./bce_base_client":415,"./headers":427,"./http_client":429,"querystring":377,"underscore":403,"url":404,"util":409,"zlib":68}],443:[function(require,module,exports){
+},{"./auth.js":413,"./bce_base_client":416,"./headers":428,"./http_client":430,"querystring":377,"underscore":403,"url":404,"util":409,"zlib":68}],444:[function(require,module,exports){
 "use strict";
 
 /**
@@ -66992,7 +67492,7 @@ Media.prototype.list = function (options) {
 
 module.exports = Media;
 
-},{"../bce_base_client":415,"../helper":428,"./Statistic":447,"debug":82,"underscore":403,"util":409}],444:[function(require,module,exports){
+},{"../bce_base_client":416,"../helper":429,"./Statistic":448,"debug":82,"underscore":403,"util":409}],445:[function(require,module,exports){
 "use strict";
 
 /**
@@ -67086,7 +67586,7 @@ Notification.prototype.remove = function (name) {
 
 module.exports = Notification;
 
-},{"../bce_base_client":415,"underscore":403,"util":409}],445:[function(require,module,exports){
+},{"../bce_base_client":416,"underscore":403,"util":409}],446:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -67194,7 +67694,7 @@ Player.prototype.code = function (options) {
 module.exports = Player;
 
 }).call(this,require("buffer").Buffer)
-},{"../bce_base_client":415,"../helper":428,"buffer":70,"underscore":403,"util":409}],446:[function(require,module,exports){
+},{"../bce_base_client":416,"../helper":429,"buffer":70,"underscore":403,"util":409}],447:[function(require,module,exports){
 "use strict";
 
 /**
@@ -67297,7 +67797,7 @@ PresetGroup.prototype.remove = function (presetGroupName) {
 
 module.exports = PresetGroup;
 
-},{"../bce_base_client":415,"underscore":403,"util":409}],447:[function(require,module,exports){
+},{"../bce_base_client":416,"underscore":403,"util":409}],448:[function(require,module,exports){
 "use strict";
 
 /**
@@ -67366,7 +67866,7 @@ Statistic.prototype.stat = function (options) {
 
 module.exports = Statistic;
 
-},{"../bce_base_client":415,"../helper":428,"debug":82,"underscore":403,"util":409}],448:[function(require,module,exports){
+},{"../bce_base_client":416,"../helper":429,"debug":82,"underscore":403,"util":409}],449:[function(require,module,exports){
 "use strict";
 
 /**
@@ -67445,7 +67945,7 @@ StrategyGroup.prototype.update = function (strategyGroupName, config) {
 
 module.exports = StrategyGroup;
 
-},{"../bce_base_client":415,"underscore":403,"util":409}],449:[function(require,module,exports){
+},{"../bce_base_client":416,"underscore":403,"util":409}],450:[function(require,module,exports){
 "use strict";
 
 /**
@@ -67570,7 +68070,7 @@ VodClient.Statistic = Statistic;
 VodClient.StrategyGroup = StrategyGroup;
 module.exports = VodClient;
 
-},{"./bce_base_client":415,"./bos_client":419,"./helper":428,"./vod/Media":443,"./vod/Notification":444,"./vod/Player":445,"./vod/PresetGroup":446,"./vod/Statistic":447,"./vod/StrategyGroup":448,"underscore":403,"url":404,"util":409}],450:[function(require,module,exports){
+},{"./bce_base_client":416,"./bos_client":420,"./helper":429,"./vod/Media":444,"./vod/Notification":445,"./vod/Player":446,"./vod/PresetGroup":447,"./vod/Statistic":448,"./vod/StrategyGroup":449,"underscore":403,"url":404,"util":409}],451:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
