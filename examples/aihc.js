@@ -12,14 +12,14 @@ const config = {
 console.log(config);
 let client = new baidubce.AihcClient(config);
 
-// client
-//   .listResourcepools()
-//   .then(function (response) {
-//     console.log(JSON.stringify(response.body));
-//   })
-//   .catch(function (err) {
-//     console.log('listInstances failed:', err);
-//   });
+client
+  .listResourcepools()
+  .then(function (response) {
+    console.log(JSON.stringify(response.body));
+  })
+  .catch(function (err) {
+    console.log('listInstances failed:', err);
+  });
 
 // client
 //   .getResourcepool('cce-e0isdmib')
@@ -30,14 +30,14 @@ let client = new baidubce.AihcClient(config);
 //     console.log('listInstances failed:', err);
 //   });
 
-client
-  .listAIJobs('cce-e0isdmib')
-  .then(function (response) {
-    console.log(JSON.stringify(response.body));
-  })
-  .catch(function (err) {
-    console.log('listAIJobs failed:', err);
-  });
+// client
+//   .listAIJobs('cce-e0isdmib')
+//   .then(function (response) {
+//     console.log(JSON.stringify(response.body));
+//   })
+//   .catch(function (err) {
+//     console.log('listAIJobs failed:', err);
+//   });
 
 // client
 //   .listAIJob('cce-e0isdmib', 'yintao03-48hours-megatron')
