@@ -11,3 +11,6 @@ test/sdk/BigBuckBunny_320x180.mp4
 .vscode
 .gitpod.yml
 package-lock.json
+.qoder/**/*
+.qoder
+.dist/**/*
