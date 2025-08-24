@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2020",
+    "outDir": "./dist/esm",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*",
+    "types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test/**/*",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "src/bts/**/*.js",
+    "src/bts_client.js"
+  ]
+}

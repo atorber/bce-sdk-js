@@ -1,25 +1,66 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "es2016",
+    "target": "ES2018",
+    "lib": ["ES2018", "DOM"],
+    
     /* Modules */
-    "module": "commonjs",
-    // "rootDir": "./",                                  /* Specify the root folder within your source files. */
-    // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
-    // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
-    // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
-    // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "typeRoots": ["./node_modules/@types", "./types", "./__tests__/types"],
     "types": ["jest", "node"],
+    
     /* JavaScript Support */
     "allowJs": true,
+    "checkJs": false,
+    
     /* Emit */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "removeComments": false,
+    "noEmit": false,
+    "importHelpers": true,
+    "downlevelIteration": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    
     /* Type Checking */
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": false,
+    
     /* Completeness */
-    // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */
-  }
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test/**/*",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "src/bts/**/*.js",
+    "src/bts_client.js"
+  ]
 }
