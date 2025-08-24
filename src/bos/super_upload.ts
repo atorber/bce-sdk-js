@@ -5,8 +5,8 @@
  */
 
 import {sortBy, omit, mean} from 'lodash';
-import dayjs from 'dayjs';
-import * as filesize from 'filesize';
+import * as dayjs from 'dayjs';
+import {filesize} from 'filesize';
 import * as async from 'async';
 import debugLib from 'debug';
 
@@ -777,7 +777,7 @@ export class SuperUpload {
    */
   private __emitProgress(params: {speed: number; progress: number; uploadedBytes: number; totalBytes: number}): void {
     const normalizedParams: ProgressCallbackParams = {
-      speed: `${filesize.filesize(params.speed, {base: 2, standard: 'jedec'})}/s`,
+      speed: `${filesize(params.speed, {base: 2, standard: 'jedec'})}/s`,
       progress: parseFloat(params.progress.toFixed(4)),
       percent: (params.progress * 100).toFixed(2) + '%',
       uploadedBytes: params.uploadedBytes,
