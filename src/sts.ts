@@ -22,8 +22,8 @@ import type { BceConfig, BceResponse } from './types/common';
 
 /** 访问控制列表项 */
 interface AccessControlListItem {
-  /** 实体 ID */
-  eid: string;
+  /** 实体 ID (可选) */
+  eid?: string;
   /** 服务名称 */
   service: string;
   /** 区域 */

@@ -35,6 +35,16 @@ export type Region =
 /** 协议类型 */
 export type Protocol = 'http' | 'https';
 
+/** 自定义签名函数类型 */
+export type CreateSignatureFunction = (
+  credentials: { ak: string; sk: string },
+  httpMethod: string,
+  path: string,
+  params: Record<string, any>,
+  headers: Record<string, any>,
+  context: any
+) => Promise<string> | string;
+
 /** 百度云引擎配置接口 */
 export interface BceConfig {
   /** 服务端点 URL */
@@ -63,6 +73,8 @@ export interface BceConfig {
   pathStyleEnable?: boolean;
   /** 自定义URL生成函数 */
   customGenerateUrl?: (bucketName: string, region?: string) => string;
+  /** 自定义签名函数 */
+  createSignature?: CreateSignatureFunction;
 }
 
 // ==================== HTTP 相关类型 ====================

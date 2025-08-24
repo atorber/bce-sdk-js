@@ -542,6 +542,72 @@ export default class BosClient extends BceBaseClient {
     });
   }
 
+  /**
+   * Set bucket default storage class
+   * 
+   * @param bucketName - The bucket name
+   * @param storageClass - The storage class to set
+   * @param options - Optional configuration
+   * @returns Promise resolving to the response
+   */
+  public putBucketStorageClass(
+    bucketName: string,
+    storageClass: StorageClass,
+    options?: BosClientOptions
+  ): Promise<BceResponse<void>> {
+    if (!bucketName) {
+      throw new TypeError('bucketName should not be empty.');
+    }
+
+    if (!storageClass) {
+      throw new TypeError('storageClass should not be empty.');
+    }
+
+    const opts = options || {};
+
+    return this.sendRequest('PUT', {
+      bucketName: bucketName,
+      params: { storageClass: '' },
+      headers: {
+        'x-bce-storage-class': storageClass
+      },
+      config: opts.config
+    });
+  }
+
+  /**
+   * Get bucket default storage class
+   * 
+   * @param bucketName - The bucket name
+   * @param options - Optional configuration
+   * @returns Promise resolving to the storage class
+   */
+  public getBucketStorageClass(
+    bucketName: string,
+    options?: BosClientOptions
+  ): Promise<BceResponse<{ storageClass: StorageClass }>> {
+    if (!bucketName) {
+      throw new TypeError('bucketName should not be empty.');
+    }
+
+    const opts = options || {};
+
+    return this.sendRequest('GET', {
+      bucketName: bucketName,
+      params: { storageClass: '' },
+      config: opts.config
+    });
+  }
+
+  /**
+   * Alias for getBucketStorageClass (lowercase c)
+   * 
+   * @param bucketName - The bucket name
+   * @param options - Optional configuration
+   * @returns Promise resolving to the storage class
+   */
+  public getBucketStorageclass = this.getBucketStorageClass;
+
   // --- Object Management Methods ---
 
   /**
