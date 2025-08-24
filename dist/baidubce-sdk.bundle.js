@@ -2305,8 +2305,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.SuperUpload = void 0;
 var tslib_1 = require("tslib");
 var lodash_1 = require("lodash");
-var dayjs = tslib_1.__importStar(require("dayjs"));
-var filesize_1 = require("filesize");
+var dayjs_1 = tslib_1.__importDefault(require("dayjs"));
+var filesize = tslib_1.__importStar(require("filesize"));
 var async = tslib_1.__importStar(require("async"));
 var debug_1 = tslib_1.__importDefault(require("debug"));
 var H = tslib_1.__importStar(require("../headers"));
@@ -2391,7 +2391,7 @@ var SuperUpload = /*#__PURE__*/function () {
       this.partConcurrency = Number.isInteger(options.partConcurrency) && options.partConcurrency > 0 ? options.partConcurrency : UPLOAD_PART_CONCURRENCY;
       this.chunkSize = Number.isInteger(options.chunkSize) && options.chunkSize > 0 ? options.chunkSize : DEFAULT_UPLOAD_PART_SIZE;
       // 时间和回调
-      this.createTime = options.createTime || dayjs().format('YYYY-MM-DDTHH:mm:ssZ');
+      this.createTime = options.createTime || dayjs_1["default"]().format('YYYY-MM-DDTHH:mm:ssZ');
       this.onProgress = options.onProgress && typeof options.onProgress === 'function' ? options.onProgress.bind(this) : null;
       this.onStateChange = options.onStateChange && typeof options.onStateChange === 'function' ? options.onStateChange.bind(this) : null;
       // 内部状态
@@ -2875,7 +2875,7 @@ var SuperUpload = /*#__PURE__*/function () {
     key: "__emitProgress",
     value: function __emitProgress(params) {
       var normalizedParams = {
-        speed: "".concat((0, filesize_1.filesize)(params.speed, {
+        speed: "".concat(filesize.filesize(params.speed, {
           base: 2,
           standard: 'jedec'
         }), "/s"),
@@ -78378,14 +78378,15 @@ module.exports={
     "test": "__tests__"
   },
   "scripts": {
-    "build": "npm run clean:bundle && npm run build:cjs && npm run build:esm && npm run build:bundle",
-    "build:cjs": "./node_modules/typescript/bin/tsc",
-    "build:esm": "./node_modules/typescript/bin/tsc -p tsconfig.esm.json",
+    "build": "npm run ensure-typescript && npm run clean:bundle && npm run build:cjs && npm run build:esm && npm run build:bundle",
+    "build:cjs": "node node_modules/typescript/bin/tsc",
+    "build:esm": "node node_modules/typescript/bin/tsc -p tsconfig.esm.json",
     "build:ts": "npm run build:cjs",
     "build:bundle": "node scripts/build.js",
-    "build:types": "./node_modules/typescript/bin/tsc --declaration --emitDeclarationOnly",
-    "dev": "./node_modules/typescript/bin/tsc --watch",
-    "type-check": "./node_modules/typescript/bin/tsc --noEmit",
+    "build:types": "node node_modules/typescript/bin/tsc --declaration --emitDeclarationOnly",
+    "dev": "node node_modules/typescript/bin/tsc --watch",
+    "ensure-typescript": "node scripts/ensure-typescript.js",
+    "type-check": "npm run ensure-typescript && node node_modules/typescript/bin/tsc --noEmit",
     "clean": "rimraf dist/",
     "clean:bundle": "rimraf dist/baidubce-sdk.bundle.js dist/baidubce-sdk.bundle.min.js",
     "pack": "rm -rf dist/ && mkdir dist && browserify index.js -s baidubce.sdk -o dist/baidubce-sdk.bundle.js && uglifyjs dist/baidubce-sdk.bundle.js --compress --mangle -o dist/baidubce-sdk.bundle.min.js",
