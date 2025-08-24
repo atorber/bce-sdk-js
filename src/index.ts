@@ -27,6 +27,7 @@ import BceBaseClient from './bce_base_client';
 
 import BosClient from './bos_client';
 import BcsClient from './bcs_client';
+import BtsClient from './bts_client';
 import BccClient from './bcc_client';
 import SesClient from './ses_client';
 import QnsClient from './qns_client';
@@ -61,6 +62,7 @@ export { BceBaseClient };
 
 export { BosClient };
 export { BcsClient };
+export { BtsClient };
 export { BccClient };
 export { SesClient };
 export { QnsClient };
@@ -91,6 +93,7 @@ export default {
   BceBaseClient,
   BosClient,
   BcsClient,
+  BtsClient,
   BccClient,
   SesClient,
   QnsClient,
