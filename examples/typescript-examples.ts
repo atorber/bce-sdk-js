@@ -460,7 +460,10 @@ class AdvancedTypeExample {
 /**
  * 实际使用示例
  * 演示如何在真实项目中使用 TypeScript SDK
+ * 
+ * 注意：该函数已被注释以避免在测试中进行网络调用
  */
+/*
 async function main() {
   // 初始化配置
   const config: BceConfig = {
@@ -495,6 +498,7 @@ async function main() {
     console.error('示例执行出错:', error);
   }
 }
+*/
 
 // 导出示例类供其他模块使用
 export {
@@ -507,7 +511,11 @@ export {
   AdvancedTypeExample
 };
 
+// 注意：为了避免在测试环境中进行网络调用，以下代码已被注释
+// 如需在本地运行示例，请取消注释并配置正确的环境变量
+/*
 // 如果直接运行此文件则执行主函数
 if (require.main === module) {
   main().catch(console.error);
 }
+*/
