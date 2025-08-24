@@ -14,34 +14,33 @@
  * @author leeight,mudio
  */
 
-exports.Q = require('q');
+/**
+ * Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * @file index.js
+ * @author leeight,mudio
+ */
 
-exports.version = require('./package.json').version;
-exports.crypto = require('./src/crypto');
-exports.strings = require('./src/strings');
-exports.STS = require('./src/sts');
-exports.Auth = require('./src/auth');
-exports.MimeType = require('./src/mime.types');
-exports.Base64 = require('./src/base64');
-
-exports.HttpClient = require('./src/http_client');
-exports.BceBaseClient  = require('./src/bce_base_client');
-
-exports.BosClient = require('./src/bos_client');
-exports.BcsClient = require('./src/bcs_client');
-exports.BccClient = require('./src/bcc_client');
-exports.SesClient = require('./src/ses_client');
-exports.QnsClient = require('./src/qns_client');
-exports.LssClient = require('./src/lss_client');
-exports.MctClient = require('./src/mct_client');
-exports.FaceClient = require('./src/face_client');
-exports.OCRClient = require('./src/ocr_client');
-exports.MediaClient = require('./src/media_client');
-exports.VodClient = require('./src/vod_client');
-exports.DocClient = require('./src/doc_client');
-exports.TsdbDataClient = require('./src/tsdb_data_client');
-exports.TsdbAdminClient = require('./src/tsdb_admin_client');
-exports.CfcClient = require('./src/cfc_client');
-exports.BtsClient = require('./src/bts_client');
-exports.IoTClient = require('./src/iot_client');
-exports.AihcClient = require('./src/aihc_client');
+// 检查是否在构建环境中（browserify）
+if (typeof process !== 'undefined' && process.env.BROWSERIFY_BUILDING) {
+  // 在浏览器构建过程中，直接使用编译后的输出
+  module.exports = require('./dist/index.js');
+} else {
+  // 在 Node.js 环境中，检查编译输出是否存在
+  try {
+    module.exports = require('./dist/index.js');
+  } catch (err) {
+    // 如果编译输出不存在，提示用户构建
+    console.error('TypeScript 输出文件不存在，请先运行: npm run build:cjs');
+    throw err;
+  }
+}

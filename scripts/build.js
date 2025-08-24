@@ -8,19 +8,27 @@ const UglifyJS = require('uglify-js');
 
 function build() {
   const rootPath = path.join(__dirname, '../');
-  const inputFile = path.join(rootPath, 'index.js');
+  // 使用 TypeScript 编译后的文件作为入口
+  const inputFile = path.join(rootPath, 'dist/index.js');
   const outputPath = path.join(rootPath, 'dist');
   const outputJS = path.join(outputPath, 'baidubce-sdk.bundle.js');
   const outputMinJS = path.join(outputPath, 'baidubce-sdk.bundle.min.js');
 
-  // 清除构建缓存
-  if (fs.existsSync(outputPath)) {
-    rimraf.sync(outputPath, {glob: true});
-    console.log(chalk.green.bold(`[build] 🗑   cache cleared.`));
+  // 检查输入文件是否存在
+  if (!fs.existsSync(inputFile)) {
+    console.error(chalk.red.bold('[build] ❌ TypeScript 编译输出不存在，请先运行: npm run build:cjs'));
+    process.exit(1);
   }
 
-  fs.mkdirSync(outputPath);
-  console.log(chalk.green.bold(`[build] output folder created`));
+  console.log(chalk.green.bold(`[build] 📦 开始浏览器构建...`));
+
+  // 只清理浏览器构建文件，保留 TypeScript 编译输出
+  if (fs.existsSync(outputJS)) {
+    fs.unlinkSync(outputJS);
+  }
+  if (fs.existsSync(outputMinJS)) {
+    fs.unlinkSync(outputMinJS);
+  }
 
   Browserify(inputFile, {standalone: 'baidubce.sdk'})
     .transform('babelify', {
